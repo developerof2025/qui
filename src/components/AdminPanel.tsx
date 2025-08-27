@@ -52,6 +52,90 @@
 @@ .. @@
    }
 
+            {/* Overall Analysis for Admin */}
+            {selectedQuizResults.results.length > 0 && (
+              <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-6 h-6 text-blue-600" />
+                  Class Performance Analysis
+                </h3>
+                
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-white/60 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-700 mb-2">Performance Distribution</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-green-600">Excellent (80%+):</span>
+                        <span className="font-semibold">
+                          {selectedQuizResults.results.filter(r => r.performance === 'Excellent').length} students
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-600">Good (50-79%):</span>
+                        <span className="font-semibold">
+                          {selectedQuizResults.results.filter(r => r.performance === 'Good').length} students
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-red-600">Poor (0-49%):</span>
+                        <span className="font-semibold">
+                          {selectedQuizResults.results.filter(r => r.performance === 'Poor').length} students
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/60 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-700 mb-2">Score Statistics</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Highest Score:</span>
+                        <span className="font-semibold text-green-600">
+                          {Math.max(...selectedQuizResults.results.map(r => r.percentage))}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Lowest Score:</span>
+                        <span className="font-semibold text-red-600">
+                          {Math.min(...selectedQuizResults.results.map(r => r.percentage))}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Average Score:</span>
+                        <span className="font-semibold text-blue-600">
+                          {Math.round(selectedQuizResults.results.reduce((sum, r) => sum + r.percentage, 0) / selectedQuizResults.results.length)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/60 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-700 mb-2">Recommendations</h4>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      {selectedQuizResults.results.filter(r => r.performance === 'Poor').length > selectedQuizResults.results.length * 0.3 ? (
+                        <>
+                          <p>• Review core concepts with class</p>
+                          <p>• Provide additional practice materials</p>
+                          <p>• Consider one-on-one support</p>
+                        </>
+                      ) : selectedQuizResults.results.filter(r => r.performance === 'Excellent').length > selectedQuizResults.results.length * 0.7 ? (
+                        <>
+                          <p>• Excellent class performance!</p>
+                          <p>• Consider advanced topics</p>
+                          <p>• Maintain current teaching approach</p>
+                        </>
+                      ) : (
+                        <>
+                          <p>• Good overall performance</p>
+                          <p>• Focus on struggling students</p>
+                          <p>• Reinforce key concepts</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 +  // Quiz Results Modal
 +  if (showResults && selectedQuizResults) {
 +    return (
