@@ -128,6 +128,9 @@ router.post('/submit/:quizId', auth, async (req, res) => {
       performance = 'Poor';
     }
 
+    // Generate detailed analysis
+    const analysis = generateQuizAnalysis(quiz, results, percentage, performance);
+
     // Save quiz result to database
     const quizResult = new QuizResult({
       quizId: quiz._id,
@@ -152,6 +155,7 @@ router.post('/submit/:quizId', auth, async (req, res) => {
       performance,
       completedAt: new Date(),
       timeSpent: timeSpent || 0,
+      analysis,
       results
     };
 
@@ -161,5 +165,81 @@ router.post('/submit/:quizId', auth, async (req, res) => {
     res.status(500).json({ message: 'Failed to submit quiz' });
   }
 });
+
+// Helper function to generate quiz analysis
+function generateQuizAnalysis(quiz, results, percentage, performance) {
+  const strengths = [];
+  const weaknesses = [];
+  const recommendations = [];
+  
+  // Category breakdown analysis
+  const categoryBreakdown = [{
+    category: quiz.category,
+    correct: results.filter(r => r.isCorrect).length,
+    total: results.length,
+    percentage: Math.round((results.filter(r => r.isCorrect).length / results.length) * 100)
+  }];
+
+  // Difficulty analysis (simplified since all questions are same difficulty)
+  const difficultyAnalysis = {
+    easy: { correct: 0, total: 0 },
+    medium: { correct: 0, total: 0 },
+    hard: { correct: 0, total: 0 }
+  };
+  
+  difficultyAnalysis[quiz.difficulty] = {
+    correct: results.filter(r => r.isCorrect).length,
+    total: results.length
+  };
+
+  // Generate insights based on performance
+  if (percentage >= 80) {
+    strengths.push(`Excellent understanding of ${quiz.topic}`);
+    strengths.push(`Strong performance in ${quiz.category} concepts`);
+    strengths.push('Consistent accuracy across questions');
+    recommendations.push('Consider taking more advanced quizzes in this topic');
+    recommendations.push('Share your knowledge by helping others');
+  } else if (percentage >= 50) {
+    strengths.push(`Good grasp of basic ${quiz.topic} concepts`);
+    if (percentage >= 65) {
+      strengths.push('Above average performance');
+    }
+    weaknesses.push('Some concepts need reinforcement');
+    recommendations.push(`Review the explanations for incorrect answers`);
+    recommendations.push(`Practice more questions on ${quiz.topic}`);
+    recommendations.push('Focus on understanding rather than memorization');
+  } else {
+    weaknesses.push(`Fundamental concepts in ${quiz.topic} need attention`);
+    weaknesses.push('Low accuracy indicates knowledge gaps');
+    recommendations.push(`Start with basic ${quiz.topic} materials`);
+    recommendations.push('Review each explanation carefully');
+    recommendations.push('Consider seeking additional help or resources');
+    recommendations.push('Practice with easier questions first');
+  }
+
+  // Time-based analysis
+  const avgTimePerQuestion = quiz.timeSpent ? quiz.timeSpent / quiz.questions.length : 0;
+  if (avgTimePerQuestion > 0) {
+    if (avgTimePerQuestion < 30) {
+      if (percentage < 70) {
+        weaknesses.push('Rushing through questions may affect accuracy');
+        recommendations.push('Take more time to read questions carefully');
+      } else {
+        strengths.push('Efficient time management');
+      }
+    } else if (avgTimePerQuestion > 120) {
+      recommendations.push('Work on improving response time');
+      recommendations.push('Practice similar questions to build confidence');
+    }
+  }
+
+  return {
+    strengths,
+    weaknesses,
+    recommendations,
+    categoryBreakdown,
+    difficultyAnalysis
+  };
+}
 
 module.exports = router;

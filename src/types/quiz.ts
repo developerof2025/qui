@@ -63,6 +63,22 @@ export interface QuizReport {
   performance: 'Poor' | 'Good' | 'Excellent';
   completedAt: Date;
   timeSpent?: number;
+  analysis: {
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    categoryBreakdown: Array<{
+      category: string;
+      correct: number;
+      total: number;
+      percentage: number;
+    }>;
+    difficultyAnalysis: {
+      easy: { correct: number; total: number };
+      medium: { correct: number; total: number };
+      hard: { correct: number; total: number };
+    };
+  };
   results: Array<{
     questionId: string;
     question: string;
