@@ -12,3 +12,7 @@ async getAdminQuizzes() {
       body: JSON.stringify({ answers, timeSpent }),
     });
   }
+
+  async getQuizResults(quizId: string) {
+    return this.request(`/quiz/admin/quiz/${quizId}/results`);
+  }
